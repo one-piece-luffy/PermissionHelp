@@ -13,7 +13,9 @@ Google权限申请的最佳实践
 申请Manifest中没有的权限时提示
 用法
 引用
+
 1、在根目录的build.gradle中加入如下配置
+
 
 allprojects {
     repositories {
@@ -21,45 +23,76 @@ allprojects {
         maven { url 'https://jitpack.io' }
     }
 }
+
 2、在要是用的module中增加如下引用
 
+
 dependencies {
+
     ...
+
     implementation 'com.github.one-piece-luffy:PermissionHelp:1.0'
+
 }
+
 使用
+
 1、初始化PermissionUtil
 
+
 permissionUtil = new PermissionUtil.Builder()
+
         .with(this)//必传：可使用FragmentActivity或v4.Fragment实例
+
         .setTitleText("提示")//弹框标题
+
         .setEnsureBtnText("确定")//权限说明弹框授权按钮文字
+
         .setCancelBtnText("取消")//权限说明弹框取消授权按钮文字
+
         .setSettingEnsureText("设置")//打开设置说明弹框打开按钮文字
+
         .setSettingCancelText("取消")//打开设置说明弹框关闭按钮文字
+
         .setSettingMsg("当前应用缺少必要权限。\n请点击\"设置\"-\"权限\"-打开所需权限。")//打开设置说明弹框内容文字
+
         .setInstallAppMsg("允许安装来自此来源的应用")//打开允许安装此来源的应用设置
+
         .setShowRequest(true)//是否显示申请权限弹框
+
         .setShowSetting(true)//是否显示设置弹框
+
         .setShowInstall(true)//是否显示允许安装此来源弹框
+
         .setRequestCancelable(true)//申请权限说明弹款是否cancelable
+
         .setSettingCancelable(true)//打开设置界面弹款是否cancelable
+
         .setInstallCancelable(true)//打开允许安装此来源引用弹款是否cancelable
+
         .setTitleColor(Color.BLACK)//弹框标题文本颜色
+
         .setMsgColor(Color.GRAY)//弹框内容文本颜色
+
         .setEnsureBtnColor(Color.BLACK)//弹框确定文本颜色
+
         .setCancelBtnColor(Color.BLACK)//弹框取消文本颜色
+
         .build();
+
 可配置的属性很多，大致含义也注释写清楚了，必须调用的属性只有一个，其他都有默认值。
 
 其中文本可以全局配置，使用：
 
 PermissionUtil.setPermissionTextProvider(IPermissionTextProvider provider)
+
 IPermissionTextProvider只是一个接口，权限中弹窗所使用到的文本，优先级比手动设置的低。
+
 
 简洁版可以这样：
 
 permissionUtil = new PermissionUtil.Builder().with(this).build();
+
 需要说明一下动态申请权限可能有两个弹框：
 
 第一个弹框：第一次申请权限被拒绝后，弹出的弹框，解释为什么需要这个权限。
@@ -71,21 +104,35 @@ permissionUtil = new PermissionUtil.Builder().with(this).build();
 按钮颜色：默认使用colorAccent的颜色
 2、申请权限并回调
 
+
 permissionUtil.request("需要读取联系人权限",
+
         Manifest.permission.READ_PHONE_STATE,
+
         new PermissionUtil.RequestPermissionListener() {
+
             @Override
             public void callback(boolean granted, boolean isAlwaysDenied) {
+
                 if (granted) {
+
                     //do your jobs..
+
                 } else {
+
                     //show some tips..
+
                 }
+
             }
+
         });
+
 第一个参数：是申请权限说明，会在上文说的第一个弹框中作为内容显示
 第二个参数：是一个所要申请的权限字符串，也可以使用字符串数组，例如申请多个权限可使用：
+
 PermissionUtil.asArray(Manifest.permission.READ_PHONE_STATE,Manifest.permission.READ_CONTACTS)
+
 
 第三个参数：申请权限的回调，granted表示是否通过，如果有多个权限的话表示是否全部通过；isAlwaysDenied false表示会重复提示，true表示拒绝且不再提示
 通过这两步，就能完全权限的申请了，当然这里申请的权限需要在配置文件中定义。
@@ -94,17 +141,24 @@ PermissionUtil.asArray(Manifest.permission.READ_PHONE_STATE,Manifest.permission.
 
 这一步清除回调，避免匿名内部类引起的内存泄露。
 
+
 if (permissionUtil != null) {
+
     permissionUtil.removeListener();
+
     permissionUtil = null;
+
 }
+
 7.0和8.0的适配
 7.0文件权限适配
 
 8.0安装未知来源应用适配
 
 混淆
+
 -keep class net.arvin.permissionhelper.**{*;}
+
 注意
 这里想说，有的手机只要用户永久拒绝了权限，那么打开设置去手动打开权限也是无效的，虽然会回调已获取权限，但是实际的使用中是获取不到那些信息的，例如联系人或者手机设备信息，我测试到的例如小米。当然如果能获取到的自然就不用管了。
 
