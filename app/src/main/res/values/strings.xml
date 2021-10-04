@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name" translatable="false">PermissionHelper</string>
+    <string name="permission_ensure">Ok</string>
+    <string name="permission_cancel">Cancel</string>
+    <string name="permission_setting">Setting</string>
+    <string name="permission_install_tips">Allow apps from this source to be installed</string>
+    <string name="permission_setting_msg">Missing required permissions。\nPlease click\"Setting\"-\"permissions\"-Open the required permissions。</string>
+</resources>
