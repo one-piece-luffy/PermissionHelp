@@ -25,8 +25,7 @@ allprojects {
 
 dependencies {
     ...
-    implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation 'com.github.arvinljw:PermissionHelper:v2.0.0'
+    implementation 'com.github.one-piece-luffy:PermissionHelp:1.0'
 }
 使用
 1、初始化PermissionUtil

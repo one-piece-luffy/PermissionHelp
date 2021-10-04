@@ -25,7 +25,6 @@ import androidx.appcompat.app.AppCompatActivity;
 public class MainActivity extends AppCompatActivity {
     PermissionUtil permissionUtil;
     TextView tvDeviceInfo;
-    String authority = "net.arvin.permissionhelper.sample.fileprovider";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,10 +71,15 @@ public class MainActivity extends AppCompatActivity {
                             getFilePath();
                             TelephonyManager phone = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
                             if (phone != null) {
-                                @SuppressLint({"MissingPermission", "HardwareIds"})
-                                String deviceId = phone.getDeviceId();
-                                tvDeviceInfo.setText(deviceId);
-                                Toast.makeText(MainActivity.this, "权限申请成功", Toast.LENGTH_SHORT).show();
+                                try {
+                                    @SuppressLint({"MissingPermission", "HardwareIds"})
+                                    String deviceId = phone.getDeviceId();
+                                    tvDeviceInfo.setText(deviceId);
+                                    Toast.makeText(MainActivity.this, "权限申请成功", Toast.LENGTH_SHORT).show();
+                                }catch (Exception e){
+                                    e.printStackTrace();
+                                }
+
                             } else {
                                 Toast.makeText(MainActivity.this, "deviceId is null", Toast.LENGTH_LONG).show();
                             }
@@ -112,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
     private void openCamera(String dir) {
         File file = new File(dir, System.currentTimeMillis() + ".jpg");
         final Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, PermissionUtil.getUri(/*context*/this, intent, file, authority));
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, PermissionUtil.getUri(/*context*/this, intent, file, getPackageName()+".fileprovider"));
         startActivity(intent);
     }
 
@@ -135,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void install(File apk) {
         Intent intent = new Intent(Intent.ACTION_VIEW);
-        Uri uri = PermissionUtil.getUri(this, apk, authority);
+        Uri uri = PermissionUtil.getUri(this, apk, getPackageName()+".fileprovider");
         intent.setDataAndType(uri, "application/vnd.android.package-archive");
         startActivity(intent);
     }
