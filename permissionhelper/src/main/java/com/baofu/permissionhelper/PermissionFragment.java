@@ -121,6 +121,8 @@ public class PermissionFragment extends Fragment {
 
     private void showRequestPermissionDialog(String msg, Activity activity) {
         PermissionUtil.Builder resBuilder = permissionUtil.getBuilder();
+        if(resBuilder==null)
+            return;
         if (!resBuilder.isShowRequest()) {
             requestPermissions(requestPermissions, REQUEST_CODE_PERMISSION);
             return;

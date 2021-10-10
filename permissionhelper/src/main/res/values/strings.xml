@@ -1,3 +1,11 @@
 <resources>
-    <string name="app_name">PermissionHelper</string>
+    <string name="app_name" translatable="false">PermissionHelper</string>
+    <string name="permission_tips">Tips</string>
+    <string name="permission_ok">Ok</string>
+    <string name="permission_cancel">Cancel</string>
+    <string name="permission_setting">Setting</string>
+    <string name="allow_install_app">Allow apps from this source to be installed
+
+</string>
+    <string name="please_open_permission">The current app lacks the necessary permissions. Please click "Settings" - "permissions" - "open the required permissions.</string>
 </resources>

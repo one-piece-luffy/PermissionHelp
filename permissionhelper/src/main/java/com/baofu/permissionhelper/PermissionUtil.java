@@ -1,7 +1,9 @@
 package com.baofu.permissionhelper;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
@@ -24,36 +26,75 @@ import androidx.fragment.app.FragmentManager;
 public class PermissionUtil {
     private static final String TAG = PermissionUtil.class.getSimpleName();
 
-    private Builder builder;
+    private  Builder defaultBuilder;
+    private  Builder mCustomBuilder;
     private PermissionFragment permissionFragment;
     private RequestPermissionListener requestPermissionListener;
     private RequestInstallAppListener requestInstallAppListener;
 
-    private static IPermissionTextProvider permissionTextProvider;
 
-    public static void setPermissionTextProvider(IPermissionTextProvider provider) {
-        permissionTextProvider = provider;
+    private static PermissionUtil instance;
+
+    public static PermissionUtil getInstance() {
+        if (instance == null) {
+            instance = new PermissionUtil();
+        }
+        return instance;
     }
 
-    private PermissionUtil(Builder builder) {
-        this.builder = builder;
-        if (builder.activity != null) {
+    private  void initBuild(Context context) {
+        if(context==null)
+            return;
+        defaultBuilder = new Builder()
+                .setTitleText(context.getString(R.string.permission_tips))//弹框标题
+                .setEnsureBtnText(context.getString(R.string.permission_ok))//权限说明弹框授权按钮文字
+                .setCancelBtnText(context.getString(R.string.permission_cancel))//权限说明弹框取消授权按钮文字
+                .setSettingEnsureText(context.getString(R.string.permission_setting))//打开设置说明弹框打开按钮文字
+                .setSettingCancelText(context.getString(R.string.permission_cancel))//打开设置说明弹框关闭按钮文字
+                .setSettingMsg(context.getString(R.string.please_open_permission))//打开设置说明弹框内容文字
+                .setInstallAppMsg(context.getString(R.string.allow_install_app))//打开允许安装此来源的应用设置
+                .setShowRequest(true)//是否显示申请权限弹框
+                .setShowSetting(true)//是否显示设置弹框
+                .setShowInstall(true)//是否显示允许安装此来源弹框
+                .setRequestCancelable(true)//申请权限说明弹款是否cancelable
+                .setSettingCancelable(true)//打开设置界面弹款是否cancelable
+                .setInstallCancelable(true)//打开允许安装此来源引用弹款是否cancelable
+                .setTitleColor(Color.BLACK)//弹框标题文本颜色
+                .setMsgColor(Color.GRAY)//弹框内容文本颜色
+                .setEnsureBtnColor(Color.BLACK)//弹框确定文本颜色
+                .setCancelBtnColor(Color.BLACK);//弹框取消文本颜色
+    }
+
+    public void setConfig(Builder builder) {
+        this.mCustomBuilder = builder;
+
+    }
+
+    private void initFragment(FragmentActivity activity) {
+        if (activity != null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                permissionFragment = initFragment(builder.activity.getSupportFragmentManager());
+                permissionFragment = initFragment(activity.getSupportFragmentManager());
             }
             return;
         }
-        if (builder.fragment != null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                permissionFragment = initFragment(builder.fragment.getChildFragmentManager());
-            }
-            return;
-        }
+
         Log.e(TAG, "PermissionUtil must set activity or fragment");
     }
 
-    public static void destroy() {
+    private void initFragment(Fragment fragment) {
+        if (fragment != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                permissionFragment = initFragment(fragment.getChildFragmentManager());
+            }
+            return;
+        }
+
+        Log.e(TAG, "PermissionUtil must set activity or fragment");
+    }
+
+    public void destroy() {
         //以防以后需要销毁的数据这里处理
+        mCustomBuilder=null;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -69,11 +110,24 @@ public class PermissionUtil {
         return fragment;
     }
 
-    public void request(String msg, String permissions, RequestPermissionListener listener) {
-        request(msg, new String[]{permissions}, listener);
+
+    public void request(FragmentActivity activity, String msg, String[] permissions, RequestPermissionListener listener) {
+        initFragment(activity);
+        if(defaultBuilder==null){
+            initBuild(activity);
+        }
+        startRequest(msg, permissions, listener);
     }
 
-    public void request(String msg, String[] permissions, RequestPermissionListener listener) {
+    public void request(Fragment fragment, String msg, String[] permissions, RequestPermissionListener listener) {
+        initFragment(fragment);
+        if(defaultBuilder==null){
+            initBuild(fragment.getContext());
+        }
+        startRequest(msg, permissions, listener);
+    }
+
+    private void startRequest(String msg, String[] permissions, RequestPermissionListener listener) {
         if (permissionFragment == null) {
 //            Log.e(TAG, "PermissionUtil must set activity or fragment");
             listener.callback(true, false);
@@ -94,7 +148,10 @@ public class PermissionUtil {
     }
 
     public Builder getBuilder() {
-        return builder;
+        if(mCustomBuilder!=null){
+            return mCustomBuilder;
+        }
+        return defaultBuilder;
     }
 
     void requestBack(boolean granted, boolean isAlwaysDenied) {
@@ -363,50 +420,15 @@ public class PermissionUtil {
                 context = fragment.getActivity();
             }
             if (context == null) {
-                return new PermissionUtil(this);
+                return new PermissionUtil();
             }
-            if (textIsNone(ensureBtnText) && permissionTextProvider != null) {
-                ensureBtnText = permissionTextProvider.getEnsureBtnText();
-            }
-            if (textIsNone(cancelBtnText) && permissionTextProvider != null) {
-                cancelBtnText = permissionTextProvider.getCancelBtnText();
-            }
-            if (textIsNone(settingMsg) && permissionTextProvider != null) {
-                settingMsg = permissionTextProvider.getSettingMsg();
-            }
-            if (textIsNone(settingEnsureText) && permissionTextProvider != null) {
-                settingEnsureText = permissionTextProvider.getSettingEnsureText();
-            }
-            if (textIsNone(settingCancelText) && permissionTextProvider != null) {
-                settingCancelText = permissionTextProvider.getSettingCancelText();
-            }
-            if (textIsNone(installAppMsg) && permissionTextProvider != null) {
-                installAppMsg = permissionTextProvider.getInstallAppMsg();
-            }
-            return new PermissionUtil(this);
+
+            return new PermissionUtil();
         }
 
-        private boolean textIsNone(String str) {
-            return str == null;
-        }
+
     }
 
-    /**
-     * xxx 不直接调用sdk里的Resource类
-     */
-    public interface IPermissionTextProvider {
-        String getEnsureBtnText();
-
-        String getCancelBtnText();
-
-        String getSettingMsg();
-
-        String getSettingEnsureText();
-
-        String getSettingCancelText();
-
-        String getInstallAppMsg();
-    }
 
     public interface RequestPermissionListener {
         /**

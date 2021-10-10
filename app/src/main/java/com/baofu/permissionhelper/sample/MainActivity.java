@@ -23,7 +23,6 @@ import java.io.File;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
-    PermissionUtil permissionUtil;
     TextView tvDeviceInfo;
 
     @Override
@@ -34,35 +33,9 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void initPermissionUtil() {
-        PermissionUtil.setPermissionTextProvider(new PermissionTextProviderImpl(this));
-        permissionUtil = new PermissionUtil.Builder()
-                .with(this)//必传：可使用FragmentActivity或v4.Fragment实例
-                .setTitleText("提示")//弹框标题
-                .setEnsureBtnText("确定")//权限说明弹框授权按钮文字
-                .setCancelBtnText("取消")//权限说明弹框取消授权按钮文字
-                .setSettingEnsureText("设置")//打开设置说明弹框打开按钮文字
-                .setSettingCancelText("取消")//打开设置说明弹框关闭按钮文字
-                .setSettingMsg("当前应用缺少必要权限。\n请点击\"设置\"-\"权限\"-打开所需权限。")//打开设置说明弹框内容文字
-                .setInstallAppMsg("允许安装来自此来源的应用")//打开允许安装此来源的应用设置
-                .setShowRequest(true)//是否显示申请权限弹框
-                .setShowSetting(true)//是否显示设置弹框
-                .setShowInstall(true)//是否显示允许安装此来源弹框
-                .setRequestCancelable(true)//申请权限说明弹款是否cancelable
-                .setSettingCancelable(true)//打开设置界面弹款是否cancelable
-                .setInstallCancelable(true)//打开允许安装此来源引用弹款是否cancelable
-                .setTitleColor(Color.BLACK)//弹框标题文本颜色
-                .setMsgColor(Color.GRAY)//弹框内容文本颜色
-                .setEnsureBtnColor(Color.BLACK)//弹框确定文本颜色
-                .setCancelBtnColor(Color.BLACK)//弹框取消文本颜色
-                .build();
-    }
 
     public void requestPermission(View view) {
-        if (permissionUtil == null) {
-            initPermissionUtil();
-        }
-        permissionUtil.request("需要读取手机信息以及文件读写权限",
+        PermissionUtil.getInstance().request(this,"需要读取手机信息以及文件读写权限",
                 PermissionUtil.asArray(Manifest.permission.READ_PHONE_STATE, Manifest.permission.WRITE_EXTERNAL_STORAGE),
                 new PermissionUtil.RequestPermissionListener() {
                     @Override
@@ -121,21 +94,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void installApp(View v) {
-        if (permissionUtil == null) {
-            initPermissionUtil();
-        }
-        permissionUtil.requestInstallApp(new PermissionUtil.RequestInstallAppListener() {
-            @Override
-            public void canInstallApp(boolean canInstall) {
-                if (canInstall) {
-                    Toast.makeText(MainActivity.this, "安装app", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(MainActivity.this, "不能安装app", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-    }
 
     private void install(File apk) {
         Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -154,49 +112,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (permissionUtil != null) {
-            permissionUtil.removeListener();
-            permissionUtil = null;
-        }
+        PermissionUtil.getInstance().removeListener();
     }
 
-    public static class PermissionTextProviderImpl implements PermissionUtil.IPermissionTextProvider {
-
-        private Context context;
-
-        public PermissionTextProviderImpl(Context context) {
-            this.context = context;
-        }
-
-        @Override
-        public String getEnsureBtnText() {
-            return context.getResources().getString(R.string.permission_ensure);
-        }
-
-        @Override
-        public String getCancelBtnText() {
-            return context.getResources().getString(R.string.permission_cancel);
-        }
-
-        @Override
-        public String getSettingMsg() {
-            return context.getResources().getString(R.string.permission_setting_msg);
-        }
-
-        @Override
-        public String getSettingEnsureText() {
-            return context.getResources().getString(R.string.permission_setting);
-        }
-
-        @Override
-        public String getSettingCancelText() {
-            return context.getResources().getString(R.string.permission_cancel);
-        }
-
-        @Override
-        public String getInstallAppMsg() {
-            return context.getResources().getString(R.string.permission_install_tips);
-        }
-
-    }
 }
