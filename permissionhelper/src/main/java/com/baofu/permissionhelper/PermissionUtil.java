@@ -94,6 +94,7 @@ public class PermissionUtil {
 
     public void destroy() {
         //以防以后需要销毁的数据这里处理
+        removeListener();
         mCustomBuilder=null;
     }
 
