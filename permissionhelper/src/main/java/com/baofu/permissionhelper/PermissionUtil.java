@@ -105,7 +105,7 @@ public class PermissionUtil {
             fragment = new PermissionFragment();
             fragmentManager.beginTransaction()
                     .add(fragment, TAG)
-                    .commit();
+                    .commitAllowingStateLoss();
         }
         fragment.setPermissionUtil(this);
         return fragment;
