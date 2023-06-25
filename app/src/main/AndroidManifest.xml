@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
-          package="com.baofu.permissionhelper.sample">
+         >
 
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
@@ -28,7 +28,8 @@
                 android:resource="@xml/external_cache_paths"/>
         </provider>
 
-        <activity android:name="com.baofu.permissionhelper.sample.MainActivity">
+        <activity android:name="com.baofu.permissionhelper.sample.MainActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 

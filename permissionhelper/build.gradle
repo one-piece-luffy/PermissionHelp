@@ -1,14 +1,12 @@
 apply plugin: 'com.android.library'
-apply plugin: 'com.github.dcendents.android-maven'
 
-group='com.github.one-piece-luffy'// jitpack上传 : 这里对应自己的github名称就可以了
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 33
 
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 30
+        targetSdkVersion 33
     }
 
     buildTypes {
@@ -17,31 +15,12 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-
-    // build a jar with source files
-    task sourcesJar(type: Jar) {
-        from android.sourceSets.main.java.srcDirs
-        classifier = 'sources'
-    }
-    task javadoc(type: Javadoc) {
-        failOnError  false
-        source = android.sourceSets.main.java.sourceFiles
-        classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-        classpath += configurations.compile
-    }
-    // build a jar with javadoc
-    task javadocJar(type: Jar, dependsOn: javadoc) {
-        classifier = 'javadoc'
-        from javadoc.destinationDir
-    }
-    artifacts {
-        archives sourcesJar
-        archives javadocJar
-    }
+    namespace 'com.baofu.permissionhelper'
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'androidx.appcompat:appcompat:1.1.0'
-
+    implementation 'androidx.appcompat:appcompat:1.6.1'
 }
+
+apply from: "$rootDir/gradle/publish.gradle"
